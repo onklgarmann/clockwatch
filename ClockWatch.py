@@ -17,8 +17,8 @@ with PiCamera(resolution="HD") as camera:
         
         time.sleep(15)
     camera.close()
-"""
 
+"""
 
 def grayscale(n, image):
     image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)   #fjern fargedimensjonen
@@ -48,7 +48,7 @@ def houghCircle(n, threshold, image):
 
 def cropClock(n, x=676, y=324, r=209, size=720):
     r=4*r//5
-    image = cv2.imread('./{}/grayscale.bmp'.format(n))[y-r:y+r, x-r:x+r]
+    image = cv2.imread('./{}/grayscale.bmp'.format(n),0)[y-r:y+r, x-r:x+r]
     mask = np.zeros(image.shape, dtype = "uint8")
     cv2.circle(mask, (r, r), r, (255, 255, 255), -1)
     image = cv2.bitwise_and(image, mask)
@@ -76,7 +76,6 @@ def gaussianBlur(n, image):
     
 
 def thresholdClock(n, image):
-    image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY) 
     binc = np.bincount(image.ravel())
     hist = binc[10:-10]
     retval,image = cv2.threshold(image,(np.argmax(hist)-15),255, cv2.THRESH_BINARY)
@@ -101,9 +100,19 @@ def dilateClock(n, image):
     cv2.imwrite('./{}/dilateClock.bmp'.format(n), image)
     return image
 
+def getSignal(image):
+    signal = np.empty(image.shape[0], dtype=int)
+    for i in range(0, image.shape[0]):
+        signal[i]=np.max(np.nonzero(image[i]))
+    for i in range(0, image.shape[0]):
+        for j in range (0, signal[i]):
+            image[i][j] = 255
+    return image
+        
+
 finalOutput= None
 #liste = [1, 2, 3, 8]
-for n in range(1,11):
+for n in range(1,2):
     print(n)
     try:
             
@@ -129,34 +138,16 @@ for n in range(1,11):
         cv2.imwrite('./{}/test3.bmp'.format(n), image)
         call("./finnViser ./{}/test3.bmp ./{}/finnViser.bmp".format(n,n), shell='true')
         image = cv2.imread('./{}/finnViser.bmp'.format(n))
-        #image = clockDepolarize(n, image, image.shape[0])
+        image = clockDepolarize(n, image, image.shape[0])
+        image = getSignal(image)
         
         
-
         
         
-
-        #image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
-        gblur = cv2.imread('./{}/gblurredClock.bmp'.format(n))
-        depolarizedImage = cv2.imread('./{}/depolarizedClock.bmp'.format(n))
-        thresholdImage = cv2.imread('./{}/thresholdClock.bmp'.format(n))
-        cropImage = cv2.imread('./{}/cropClock.bmp'.format(n))
-        openImage = cv2.imread('./{}/openClock.bmp'.format(n))
         image = cv2.imwrite('./{}/output.bmp'.format(n), image)
         
 
     except Exception as e:
         print(e.args)
 
-finalOutput = cv2.imread('./{}/output.bmp'.format(1))
 
-for n in range(2,11):
-    image = cv2.imread('./{}/output.bmp'.format(n))
-    finalOutput = np.vstack([finalOutput, image])
-image = cv2.imread('./{}/output.bmp'.format(8))
-finalOutput = np.vstack([finalOutput, image])
-
-finalOutput = cv2.cvtColor(finalOutput, cv2.COLOR_RGB2GRAY)
-
-cv2.imwrite('./finalOutput.bmp', finalOutput)
-sys.exit()
