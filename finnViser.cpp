@@ -83,12 +83,16 @@ int main(int argc, char** argv){
         
     }
     vector<int> roots(nShapes+1, 0);
+
+    
     
     for (int i = 1; i<refinedRelations.size();i++){
         //cout << i << "\t: ";
         if (!refinedRelations[i].empty()){
+            sort(refinedRelations[i].begin(), refinedRelations[i].end());
             for (int j = 0; j<refinedRelations[i].size();j++){
                 int c = refinedRelations[i][j];
+                //cout << "rRelations: " << c << " root c:" << roots[c] << " root i: " << roots[i] << " etter: ";
                 if (roots[c]==0 && roots[i]==0){
                     roots[c]=i;
                 }
@@ -98,11 +102,35 @@ int main(int argc, char** argv){
                 else if (roots[c]==0 && roots[i]!=0){
                     roots[c]=roots[i];
                 }
-                //cout << c << " ";
+                else if (roots[c]<roots[i]){
+                    
+                    cout << i << ":\t rootc: " << roots[c] << " rooti: " << roots[i] << endl;
+                    roots[i]=roots[c];
+                    i = roots[i];
+                }
+            
+                //cout << "rRelations: " << c << " root c:" << roots[c] << " root i: " << roots[i] << endl;
             }
         } 
-        //cout << endl;
+        
     }
+
+/*
+    for (int i = 1; i<refinedRelations.size();i++){
+        cout << i << ":  \t" << roots[i] << ":  ";
+        if (!refinedRelations[i].empty()){
+            
+            for (int j = 0; j<refinedRelations[i].size();j++){
+                cout << refinedRelations[i][j] << " ";
+            }
+            
+        }
+        cout << endl;
+    }
+*/
+
+
+
     vector<long int> rootSize(nShapes+1, 0);
 
     for(int i = 0 ; i < height; i++)
@@ -132,10 +160,9 @@ int main(int argc, char** argv){
     //rootSize[viser]=0;
      //viser = max_element(rootSize.begin(),rootSize.end()) - rootSize.begin(); 
     //cout << "Largest element: " << viser << '\t' << *max_element(rootSize.begin(),rootSize.end()) << endl;
-
+    
     for(int i = 0 ; i < height; i++)
     {
-        
         for(int j = 0; j < width; j++)
         {
             map.at<uchar>(i,j)= mapVector[i][j];
@@ -148,17 +175,22 @@ int main(int argc, char** argv){
         for(int j = 0; j < width; j++)
         {
             int pixel = mapVector[i][j];
+            //cout << i << " : " << j << " : " << pixel << " : ";
             if (pixel !=0 && pixel != viser ){
                 map.at<uchar>(i,j) = 0;
+                //cout << 0;
             }
             else if (pixel == viser){
                 map.at<uchar>(i,j) = 255;
+                //cout << 255;
             }
+            //cout << endl;
         }
     }
 
-    
+    cout << nShapes << '\t' << viser << '\t' << rootSize[124];
     
     imwrite(argv[2], map);
-    cout << "END" << endl;
+    
+    cout << endl << "finnViser completed" << endl;
 }

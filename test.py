@@ -7,4 +7,5 @@ from subprocess import call
 n=1
 
 
-call("./finnViser ./{}/output.bmp ./{}/finnViser.bmp".format(n,n), shell='true')
+signal = [1, 1, 1, 0, 1, 0, 0, 0 ,0 ,0 ,0 ,0 ,0 ,0]
+print (np.argmax(signal))
