@@ -3,8 +3,8 @@ import numpy as np
 import sys
 import time
 from picamera import PiCamera
-
-'''
+from subprocess import call
+"""
 with PiCamera(resolution="HD") as camera:
     camera.rotation = 180
     
@@ -15,9 +15,9 @@ with PiCamera(resolution="HD") as camera:
         print(n)
         camera.capture('./{}/input.bmp'.format(n))
         
-        time.sleep(30)
+        time.sleep(15)
     camera.close()
-'''
+"""
 
 
 def grayscale(n, image):
@@ -47,10 +47,13 @@ def houghCircle(n, threshold, image):
     return x,y,r, image
 
 def cropClock(n, x=676, y=324, r=209, size=720):
+    r=4*r//5
     image = cv2.imread('./{}/grayscale.bmp'.format(n))[y-r:y+r, x-r:x+r]
     mask = np.zeros(image.shape, dtype = "uint8")
     cv2.circle(mask, (r, r), r, (255, 255, 255), -1)
     image = cv2.bitwise_and(image, mask)
+    mask = ~mask
+    image = cv2.bitwise_xor(image, mask)
     image = cv2.resize(image,(size,size))
     median = np.median(image)
     mean = np.mean(image)
@@ -66,7 +69,7 @@ def clockDepolarize(n, image, size = 720):
 
 
 def gaussianBlur(n, image):
-    image = cv2.GaussianBlur(image, (21, 21), 0)
+    image = cv2.GaussianBlur(image, (5, 5), 0)
     
     cv2.imwrite('./{}/gblurredClock.bmp'.format(n), image)
     return image
@@ -74,20 +77,21 @@ def gaussianBlur(n, image):
 
 def thresholdClock(n, image):
     image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY) 
-    #image = cv2.adaptiveThreshold(image,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,11,2)
-    retval,image = cv2.threshold(image,(np.median(image)//2+np.median(image)//5),255, cv2.THRESH_BINARY)
+    binc = np.bincount(image.ravel())
+    hist = binc[10:-10]
+    retval,image = cv2.threshold(image,(np.argmax(hist)-15),255, cv2.THRESH_BINARY)
     print("threshold: ", retval)
     cv2.imwrite('./{}/thresholdClock.bmp'.format(n), image)
     return image
 
 def openClock(n, image):
-    kernelerode = cv2.getStructuringElement(cv2.MORPH_CROSS,(5,5))
+    kernelerode = cv2.getStructuringElement(cv2.MORPH_RECT,(3,3))
     kerneldilate = cv2.getStructuringElement(cv2.MORPH_RECT,(3,3))
-    for n in range (1):
-        image = cv2.erode(image, kernelerode, iterations=2)
-        image = cv2.dilate(image, kerneldilate, iterations=1)
-    
-    #image = cv2.morphologyEx(image, cv2.MORPH_OPEN, kernelerode, iterations =3)
+    """for n in range (1):
+        image = cv2.erode(image, kernelerode, iterations=1)
+        image = cv2.dilate(image, kerneldilate, iterations=12)
+    """
+    image = cv2.morphologyEx(image, cv2.MORPH_OPEN, kernelerode, iterations =3)
     cv2.imwrite('./{}/openClock.bmp'.format(n), image)
     return image
 
@@ -97,31 +101,14 @@ def dilateClock(n, image):
     cv2.imwrite('./{}/dilateClock.bmp'.format(n), image)
     return image
 
-def findViser(n, image):
-    map = image.copy()
-    
-    height, width = map.shape
-    hsignal = np.zeros(width)
-    vsignal = np.zeros(height)
-    map[0:height, 0:width] = 0
-    with np.nditer(vsignal) as itv:
-        with np.nditer(hsignal) as ith:
-            for x in ith:
-                if image[itv.iterindex][ith.iterindex]==0:
-                    x[...]=255
-        
-    return map
-
-
-
 finalOutput= None
-liste = [1, 2, 3, 8]
-for n in liste:
+#liste = [1, 2, 3, 8]
+for n in range(1,11):
     print(n)
     try:
             
-        image = cv2.imread('./{}/cropClock.bmp'.format(n))
-        '''
+        image = cv2.imread('./{}/input.bmp'.format(n))
+        
         threshold, image = grayscale(n, image)
         cannyEdge(n, threshold, image)
         try:
@@ -131,22 +118,19 @@ for n in liste:
             print(e.args[0])
             print("Using default circle")
             image = cropClock(n)
-        '''
-        image = thresholdClock(n, image)
-        print("threshold done")
+        #image = cv2.equalizeHist(image)
         image = gaussianBlur(n, image)
-        retval,image = cv2.threshold(image,np.median(image)//2+np.median(image)//5,255, cv2.THRESH_BINARY)
+        image = thresholdClock(n, image)
+        image = openClock(n, image)
         image = ~image
+        output = cv2.imwrite('./{}/output.bmp'.format(n), image)
+        call("./finnViser ./{}/output.bmp ./{}/finnViser.bmp".format(n,n), shell='true')
+        image = cv2.imread('./{}/finnViser.bmp'.format(n),0)
+        image = clockDepolarize(n, image, image.shape[0])
         
-        #image = findViser(n, image)
+        
 
-        #image = openClock(n, image)
-        #image = clockDepolarize(n, image)
-        #image = openClock(n, image)
-        #image = gaussianBlur(n, image)
-        #image = openClock(n, image)
-        #image = image[0:image.shape[0], 0:image.shape[1]//6*5]
-        #image = dilateClock(n, image)
+        
         
 
         image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
@@ -155,7 +139,6 @@ for n in liste:
         thresholdImage = cv2.imread('./{}/thresholdClock.bmp'.format(n))
         cropImage = cv2.imread('./{}/cropClock.bmp'.format(n))
         openImage = cv2.imread('./{}/openClock.bmp'.format(n))
-        
         output = cv2.imwrite('./{}/output.bmp'.format(n), image)
         
 
@@ -163,7 +146,8 @@ for n in liste:
         print(e.args)
 
 finalOutput = cv2.imread('./{}/output.bmp'.format(1))
-for n in range (2,4):
+
+for n in range(2,11):
     image = cv2.imread('./{}/output.bmp'.format(n))
     finalOutput = np.vstack([finalOutput, image])
 image = cv2.imread('./{}/output.bmp'.format(8))
