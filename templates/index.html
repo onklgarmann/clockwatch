@@ -1,0 +1,24 @@
+<html>
+    <head >
+        <title>Clockwatch</title>
+    </head>
+<body align="center">
+<h1>Clockwatch</h1>
+<p>
+<img src="http://192.168.10.173:8080/stream.mjpg" width=640 height =360>
+</p>
+<p>
+<form action="/start" method="POST">
+    <input type="submit" value="Start">
+</form>
+<form action="/knips" method="POST">
+    <input type="submit" value="Knips">
+</form>
+</p>
+<p>
+Start-knappen er koblet til klokkens reset-funksjon som vil sende viserne rundt klokka en gang, det tar ca 20 sekunder før den begynner å gå.  Knips et bilde som skal behandles.
+</p>
+    {% block content %}
+    {% endblock %}
+</body>
+</html>

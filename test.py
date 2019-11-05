@@ -4,10 +4,15 @@ import sys
 import time
 from subprocess import call
 
-n=1
+import RPi.GPIO as GPIO
 
-hist = np.array([1,1,2,3,4,5,3,20,3,0,0,2,0,1,0])
-signal = np.array(0)
-for i in range(0, hist.size):
-    signal.append(np.max(np.nonzero(hist[i])))
-    print (signal[i])
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+GPIO.setup(18,GPIO.OUT)
+print ("RESET ON")
+GPIO.output(18,GPIO.HIGH)
+time.sleep(10)
+print ("RESET OFF")
+GPIO.output(18,GPIO.LOW)
+time.sleep(20)

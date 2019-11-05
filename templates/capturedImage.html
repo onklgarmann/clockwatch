@@ -1,0 +1,10 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div>
+        <img src="/static/input{{ iterations }}.bmp" width=640 height =360>
+        <form action="/behandle" method="POST">
+            <input type="submit" value="Bildebehandling">
+        </form>
+</div>
+{% endblock %}

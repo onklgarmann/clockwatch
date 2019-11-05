@@ -1,0 +1,29 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div>
+        <img src="/static/klokka{{ iterations }}.bmp" width=640 height =360><br>
+        <p>Først gjøres bilde om til gråtoner ved å ta gjennomsnittet av de tre fargekanalene.</p>
+        <img src="/static/grayscale{{ iterations }}.bmp" width=640 height =360><br>
+        <p>Deretter bruker vi canny edge detector med grenseverdi (1.0 + 0.33) * median) + 20</p>
+        <img src="/static/cannyEdge{{ iterations }}.bmp" width=640 height =360><br>
+        <p>Jeg plukker ut den best definerte sirkelen i bildet med Hough-transform for sirkler</p>
+        <img src="/static/houghCircle{{ iterations }}.bmp" width=640 height =360><br>
+        <p>Sirkelen brukes som maske og grense for neste bilde.</p>
+        <img src="/static/cropClock{{ iterations }}.bmp" width=360 height =360><br>
+        <p>Fjerner litt støy med gaussian blur før thresholding. 5x5 maske.</p>
+        <img src="/static/gblurredClock{{ iterations }}.bmp" width=360 height =360><br>
+        <p>Ved thresholding regner jeg først ut histogramvektoren mellom 10-245 og setter grenseverdien -15 under den høyeste verdien</p>
+        <img src="/static/thresholdClock{{ iterations }}.bmp" width=360 height =360><br>
+        <p>Så gjør jeg en opening for å fjerne mindre flekker.  Erosion og dilation med 3x3 maske gjennomføres fem ganger.</p>
+        <img src="/static/openClock{{ iterations }}.bmp" width=360 height =360><br>
+        <p>Snur om på pixelverdiene</p>
+        <img src="/static/negative{{ iterations }}.bmp"width=360 height =360><br>
+        <p>På dette tidspunktet bør det være greit å anta at viserne er det største objektet i bildet.  Dette plukkes ut med connected component labeling.</p>
+        <img src="/static/finnViser{{ iterations }}.bmp" width=360 height =360><br>
+        <p>Så gjør jeg en transformasjon fra polare til rektangulære coordinater for å brette ut klokka og viserne.</p>
+        <img src="/static/depolarizedClock{{ iterations }}.bmp" width=360 height =360><br>
+        <p>Så fyller jeg inn eventuelle tomrom slik at jeg står igjen med en vektor det de to høyeste toppene tilsvarer viserne.</p>
+        <img src="/static/output{{ iterations }}.bmp" width=360 height =360><br>
+</div>
+{% endblock %}

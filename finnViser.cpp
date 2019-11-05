@@ -87,12 +87,12 @@ int main(int argc, char** argv){
     
     
     for (int i = 1; i<refinedRelations.size();i++){
-        //cout << i << "\t: ";
+        
         if (!refinedRelations[i].empty()){
             sort(refinedRelations[i].begin(), refinedRelations[i].end());
             for (int j = 0; j<refinedRelations[i].size();j++){
                 int c = refinedRelations[i][j];
-                //cout << "rRelations: " << c << " root c:" << roots[c] << " root i: " << roots[i] << " etter: ";
+                
                 if (roots[c]==0 && roots[i]==0){
                     roots[c]=i;
                 }
@@ -104,30 +104,34 @@ int main(int argc, char** argv){
                 }
                 else if (roots[c]<roots[i]){
                     
-                    cout << i << ":\t rootc: " << roots[c] << " rooti: " << roots[i] << endl;
+                    //cout << i << ":\t rootc: " << roots[c] << " rooti: " << roots[i] << endl;
                     roots[i]=roots[c];
-                    i = roots[i];
+                    i = roots[c];
                 }
-            
+                else if (roots[c]>roots[i]){
+                    roots[c]=roots[i];
+                    i = roots[c];
+                }
+                
                 //cout << "rRelations: " << c << " root c:" << roots[c] << " root i: " << roots[i] << endl;
             }
         } 
         
     }
 
-/*
+
     for (int i = 1; i<refinedRelations.size();i++){
         cout << i << ":  \t" << roots[i] << ":  ";
         if (!refinedRelations[i].empty()){
             
             for (int j = 0; j<refinedRelations[i].size();j++){
-                cout << refinedRelations[i][j] << " ";
+                cout << refinedRelations[i][j] << ":" << roots[refinedRelations[i][j]] << "  ";
             }
             
         }
         cout << endl;
     }
-*/
+
 
 
 
@@ -188,7 +192,7 @@ int main(int argc, char** argv){
         }
     }
 
-    cout << nShapes << '\t' << viser << '\t' << rootSize[124];
+    cout << nShapes << '\t' << viser << '\t';
     
     imwrite(argv[2], map);
     
