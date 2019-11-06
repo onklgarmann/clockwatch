@@ -60,9 +60,10 @@ def behandle():
             image = cropClock()
         #image = cv2.equalizeHist(image)
         image = gaussianBlur(image)
+        print("MEDIAN: ", np.median(image))
         image = thresholdClock(image)
         
-        #image = openClock(image)
+        
         
         ret,image = cv2.threshold(image,127,255,cv2.THRESH_BINARY)
         image = ~image
@@ -149,7 +150,8 @@ def gaussianBlur(image):
 def thresholdClock(image):
     binc = np.bincount(image.ravel())
     hist = binc[10:-10]
-    retval,image = cv2.threshold(image,(np.argmax(hist)-15),255, cv2.THRESH_BINARY)
+    
+    retval,image = cv2.threshold(image,(np.argmax(hist)-20),255, cv2.THRESH_BINARY)
     print("threshold: ", retval)
     cv2.imwrite('./static/thresholdClock{}.bmp'.format(iterations), image)
     return image
@@ -161,7 +163,7 @@ def openClock(image):
         image = cv2.erode(image, kernelerode, iterations=1)
         image = cv2.dilate(image, kerneldilate, iterations=12)
     """
-    image = cv2.morphologyEx(image, cv2.MORPH_OPEN, kerneldilate, iterations =2)
+    image = cv2.morphologyEx(image, cv2.MORPH_OPEN, kerneldilate, iterations =1)
     cv2.imwrite('./static/openClock{}.bmp'.format(iterations), image)
     return image
 
@@ -190,13 +192,13 @@ def finnKlokka(signal):
     if peaks.size == 1:
         peaks = peaks.astype(int)
         heights = heights['peak_heights'].astype(int)
-        minuttviser = peaks[0]
-        timeviser = minuttviser
+        timeviser = peaks[0]
+        minuttviser = timeviser
         believable = False
         print(" here " , peaks[0], heights[0])
         for time in range(12):
             print(60*time - 5, timeviser , 60*time + 5)
-            if (60*time - 5 < timeviser < 60*time + 5)==True:
+            if (60*time - 5 < timeviser + timeviser//720 < 60*time + 5)==True:
                 believable = True
                 break
         if (not believable):

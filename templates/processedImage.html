@@ -15,10 +15,8 @@
         <img src="/static/gblurredClock{{ iterations }}.bmp" width=360 height =360><br>
         <p>Ved thresholding regner jeg først ut histogramvektoren mellom 10-245 og setter grenseverdien -15 under den høyeste verdien</p>
         <img src="/static/thresholdClock{{ iterations }}.bmp" width=360 height =360><br>
-        <p>Så gjør jeg en opening for å fjerne mindre flekker.  Erosion og dilation med 3x3 maske gjennomføres fem ganger.</p>
+        <p>Så gjør jeg en opening for å fjerne mindre flekker.  Erosion og dilation med 3x3 maske gjennomføres to ganger.</p>
         <img src="/static/openClock{{ iterations }}.bmp" width=360 height =360><br>
-        <p>Snur om på pixelverdiene</p>
-        <img src="/static/negative{{ iterations }}.bmp"width=360 height =360><br>
         <p>På dette tidspunktet bør det være greit å anta at viserne er det største objektet i bildet.  Dette plukkes ut med connected component labeling.</p>
         <img src="/static/finnViser{{ iterations }}.bmp" width=360 height =360><br>
         <p>Så gjør jeg en transformasjon fra polare til rektangulære coordinater for å brette ut klokka og viserne.</p>
